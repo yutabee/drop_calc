@@ -34,6 +34,10 @@
 <h1>Drop Calc</h1>
 <form id="InputForm">
     <fieldset>
+        <select id="dropNum" class="form-select mb-3 col-12" aria-label="dropNum" name="dropNum">
+            <option value="drop20">1mLあたり20滴の輸液セット</option>
+            <option value="drop60">1mLあたり60滴の輸液セット</option>
+        </select>
         <div class="form-floating mb-3 col-12">
             <input type="text" class="form-control" id="volume" placeholder="volume" inputmode="numeric">
             <label for="volume">volume(mL)</label>
@@ -49,27 +53,35 @@
 </form>
 
 <div id="outPutArea"></div>
-<br>
-<p>※1mL60滴の輸液セット使用</p>
+
 </div>
 
     <script>
-        const  FormElement = document.getElementById('InputForm');
+        const FormElement = document.getElementById('InputForm');
         const volumeInput = document.getElementById('volume');
         const timeInput = document.getElementById('time');
         const sendButton = document.getElementById('sendButton');
         const outPutArea = document.getElementById('outPutArea');
+        const dropNum = document.getElementById('dropNum');
 
         sendButton.addEventListener('click',(e)=>{
+            const drop = dropNum.value; //ルートサイズ
+            // console.log(drop);
             const volume = volumeInput.value; //輸液量
             const time = timeInput.value; //滴下時間(h)
             const DropSpeedHour = volume / time; //滴下速度(mL/hour)
             const DropSpeedMin = DropSpeedHour/60; //滴下速度(mL/min)
             const DropSpeedSec = DropSpeedMin/60; //1秒間あたりの滴下量(ml)
-            const OneSecDrop01 = DropSpeedSec*20; //1mLあたり20滴の輸液セット
-            const OneSecDrop02 = DropSpeedSec*60; //1mLあたり60滴の輸液セット
+            let OneSecDrop = 0 ;
+
+            if(drop=='drop20'){
+                OneSecDrop = DropSpeedSec * 20;
+            }else if(drop=='drop60'){
+                 OneSecDrop = DropSpeedSec * 60;
+            }
+
             const array = [...Array(60).keys()].map(x=>x+1); //60までの配列
-            const newArray = array.map(x=>x*OneSecDrop02); //1秒ごとの滴下数の配列を返す
+            const newArray = array.map(x=>x*OneSecDrop); //1秒ごとの滴下数の配列を返す
             // console.log(newArray);
             newArray.unshift(0);
             // console.log(newArray);
@@ -78,19 +90,18 @@
             const SpeedHour = Math.round(DropSpeedHour * Math.pow(10, n)) / Math.pow(10, n); //滴下速度(mL/hour)
             const SpeedMin = Math.round(DropSpeedMin * Math.pow(10, n)) / Math.pow(10, n); //滴下速度(mL/hour)
             const roundedArray = newArray.map(x=> Math.round(x * Math.pow(10, n)) / Math.pow(10, n));
-            console.log(roundedArray);
+            // console.log(roundedArray);
             
-            outPutArea.innerHTML = `<div class="speedBox">
+            outPutArea.innerHTML = `
+                                    <div class="speedBox">
                                         <p>${SpeedHour}mL/hour</p>
                                         <p>${SpeedMin}mL/min</p>
                                     </div>
                                     <div class="dropBox">
-                                        <p>5sec${roundedArray[5]}drop</p>
-                                        <p>10sec${roundedArray[10]}drop</p>
-                                        <p>15sec${roundedArray[15]}drop</p>
-                                        <p>30sec${roundedArray[30]}drop</p>
-                                        <p>45sec${roundedArray[45]}drop</p>
-                                        <p>60sec${roundedArray[60]}drop</p>
+                                        <p>3秒${roundedArray[3]}滴</p>
+                                        <p>5秒${roundedArray[5]}滴</p>
+                                        <p>10秒${roundedArray[10]}滴</p>
+                                        <p>15秒${roundedArray[15]}滴</p>
                                     </div>    
                                     `;
         });
